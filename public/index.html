@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>J.A.R.V.I.S — VOS Voice OS</title>
+  <script src="/app-config.js"></script>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+  <!-- Audio (hidden) -->
+  <audio id="audio-player"></audio>
+
+  <!-- Toast -->
+  <div id="toast" class="toast"></div>
+
+  <!-- Boot Overlay -->
+  <div id="boot-overlay" class="boot-overlay">
+    <div class="boot-content">
+      <div class="boot-logo">J.A.R.V.I.S</div>
+      <div class="boot-line" id="boot-line">INITIALIZING SYSTEMS...</div>
+      <div class="boot-bar"><div class="boot-bar-fill" id="boot-bar-fill"></div></div>
+      <div class="boot-sub">VOS Voice OS v2.0 — FULLY OPERATIONAL</div>
+    </div>
+  </div>
+
+  <!-- 3-panel layout -->
+  <div class="app-layout" id="app-layout">
+
+    <!-- ═══════════════════════════════════════
+         LEFT PANEL — SYSTEM STATUS HUD
+    ═══════════════════════════════════════ -->
+    <aside class="panel panel-left" id="panel-left">
+
+      <!-- Header -->
+      <div class="panel-header">
+        <div class="corner-tl"></div>
+        <div class="panel-title-main">J.A.R.V.I.S</div>
+        <div class="panel-subtitle">VOS v2.0 // COMMAND OS</div>
+        <div class="panel-divider"></div>
+      </div>
+
+      <!-- WS Status -->
+      <div class="hud-block">
+        <div class="hud-label">UPLINK STATUS</div>
+        <div class="hud-row">
+          <div id="ws-dot" class="ws-dot disconnected"></div>
+          <span id="ws-label" class="ws-label">OFFLINE</span>
+          <span class="ws-ping">—</span>
+        </div>
+      </div>
+
+      <!-- Session -->
+      <div class="hud-block">
+        <div class="hud-label">OPERATOR SESSION</div>
+        <div id="session-display" class="mono-val">—</div>
+      </div>
+
+      <!-- Memory -->
+      <div class="hud-block">
+        <div class="hud-label">MEMORY STACK</div>
+        <div class="hud-row">
+          <span id="memory-display" class="mono-val">0</span>
+          <span class="hud-unit">TURNS LOADED</span>
+        </div>
+      </div>
+
+      <div class="panel-divider"></div>
+
+      <!-- Mode Matrix -->
+      <div class="hud-block">
+        <div class="hud-label">ACTIVE PROTOCOLS</div>
+        <div id="mode-list" class="mode-matrix">
+          <div class="mode-card active" data-mode="assistant">
+            <div class="mode-icon">A</div>
+            <div class="mode-info">
+              <div class="mode-name">ASSISTANT</div>
+              <div class="mode-desc">General AI intelligence</div>
+            </div>
+          </div>
+          <div class="mode-card" data-mode="tutor">
+            <div class="mode-icon">T</div>
+            <div class="mode-info">
+              <div class="mode-name">TUTOR</div>
+              <div class="mode-desc">Educational mode</div>
+            </div>
+          </div>
+          <div class="mode-card" data-mode="translator">
+            <div class="mode-icon">TR</div>
+            <div class="mode-info">
+              <div class="mode-name">TRANSLATOR</div>
+              <div class="mode-desc">Language bridge</div>
+            </div>
+          </div>
+          <div class="mode-card" data-mode="customer-support">
+            <div class="mode-icon">S</div>
+            <div class="mode-info">
+              <div class="mode-name">SUPPORT</div>
+              <div class="mode-desc">Customer service AI</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel-divider"></div>
+
+      <!-- Language -->
+      <div class="hud-block">
+        <div class="hud-label">VOICE DIALECT</div>
+        <select id="lang-select" class="hud-select">
+          <option value="en">ENGLISH (EN)</option>
+          <option value="es">ESPAÑOL (ES)</option>
+          <option value="fr">FRANÇAIS (FR)</option>
+          <option value="de">DEUTSCH (DE)</option>
+          <option value="hi">हिन्दी (HI)</option>
+          <option value="ja">日本語 (JA)</option>
+        </select>
+      </div>
+
+      <div class="panel-divider"></div>
+
+      <!-- Quick Actions -->
+      <div class="hud-block">
+        <div class="hud-label">COMMAND DECK</div>
+        <div class="quick-grid">
+          <button class="quick-btn" data-text="hello">HELLO</button>
+          <button class="quick-btn" data-text="what can you do">CAPABILITIES</button>
+          <button class="quick-btn" data-action="clear">CLEAR MEM</button>
+          <button class="quick-btn" data-action="repeat">REPEAT</button>
+          <button class="quick-btn" data-action="help">HELP</button>
+          <button class="quick-btn" data-action="stop">STOP AUD</button>
+        </div>
+      </div>
+
+      <!-- Telemetry (bottom) -->
+      <div class="telemetry-block">
+        <div class="panel-divider"></div>
+        <div class="hud-label">SYSTEM TELEMETRY</div>
+        <div class="tele-row">
+          <span class="tele-key">LATENCY</span>
+          <span id="latency-display" class="tele-val">—</span>
+        </div>
+        <div class="tele-row">
+          <span class="tele-key">MODEL</span>
+          <span id="model-display" class="tele-val">tinyllama</span>
+        </div>
+        <div class="tele-row">
+          <span class="tele-key">MODE</span>
+          <span id="mode-display" class="tele-val">ASSISTANT</span>
+        </div>
+        <div class="tele-row">
+          <span class="tele-key">PROVIDER</span>
+          <span class="tele-val">OLLAMA</span>
+        </div>
+      </div>
+
+    </aside>
+
+    <!-- ═══════════════════════════════════════
+         CENTER PANEL — MAIN COMMAND STAGE
+    ═══════════════════════════════════════ -->
+    <main class="panel panel-center">
+
+      <!-- Top bar -->
+      <div class="center-topbar">
+        <span class="topbar-left">OPERATOR COMMAND TERMINAL</span>
+        <span class="topbar-right" id="realtime-status">
+          <span class="realtime-dot"></span>REALTIME CHANNEL ACTIVE
+        </span>
+      </div>
+
+      <!-- Transcript display (voice input echo) -->
+      <div class="transcript-card" id="transcript-card" style="display:none">
+        <span class="hud-label" style="display:block;margin-bottom:6px">VOICE INPUT RECEIVED</span>
+        <div id="transcript-text" class="transcript-text"></div>
+      </div>
+
+      <!-- Conversation log -->
+      <div id="chat" class="chat">
+        <div id="empty" class="chat-empty">
+          <div class="empty-icon">◈</div>
+          <div class="empty-title">VOS READY</div>
+          <div class="empty-sub">Speak or type your command, Operator.</div>
+        </div>
+      </div>
+
+      <!-- Arc Reactor Mic (center hero) -->
+      <div class="arc-reactor-wrap" id="arc-wrap">
+        <div class="arc-ring arc-ring-outer" id="arc-ring-1"></div>
+        <div class="arc-ring arc-ring-inner" id="arc-ring-2"></div>
+
+        <!-- Sonar rings (listening state) -->
+        <div class="sonar-ring" id="sonar-1"></div>
+        <div class="sonar-ring" id="sonar-2"></div>
+        <div class="sonar-ring" id="sonar-3"></div>
+
+        <!-- Main mic button -->
+        <button id="mic-btn" class="mic-btn idle" aria-label="Activate voice input">
+          <svg class="mic-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="9" y="2" width="6" height="12" rx="3"/>
+            <path d="M5 10a7 7 0 0 0 14 0"/>
+            <line x1="12" y1="19" x2="12" y2="22"/>
+            <line x1="8" y1="22" x2="16" y2="22"/>
+          </svg>
+          <!-- Processing arc -->
+          <div class="proc-arc" id="proc-arc"></div>
+          <!-- EQ bars (speaking state) -->
+          <div class="eq-bars" id="eq-bars">
+            <span></span><span></span><span></span><span></span><span></span>
+          </div>
+        </button>
+
+        <div id="mic-status" class="mic-status-label">VOICE READY</div>
+      </div>
+
+      <!-- Input dock (fixed bottom) -->
+      <div class="input-dock">
+        <input
+          id="text-input"
+          class="text-input"
+          type="text"
+          placeholder="Enter command..."
+          autocomplete="off"
+          spellcheck="false"
+        >
+        <button id="send-btn" class="send-btn" aria-label="Send">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="22" y1="2" x2="11" y2="13"/>
+            <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+          </svg>
+        </button>
+      </div>
+
+    </main>
+
+    <!-- ═══════════════════════════════════════
+         RIGHT PANEL — INTELLIGENCE FEED
+    ═══════════════════════════════════════ -->
+    <aside class="panel panel-right" id="panel-right">
+
+      <div class="panel-header">
+        <div class="corner-tr"></div>
+        <div class="panel-title-sm">INTELLIGENCE FEED</div>
+        <div class="panel-divider"></div>
+      </div>
+
+      <!-- Last Transmission -->
+      <div class="hud-block">
+        <div class="hud-label">LAST TRANSMISSION</div>
+        <div id="last-reply-card" class="last-reply-card">
+          <span class="last-reply-text" id="last-reply-text">Awaiting input...</span>
+        </div>
+      </div>
+
+      <div class="panel-divider"></div>
+
+      <!-- Audio Visualizer -->
+      <div class="hud-block">
+        <div class="hud-label">AUDIO OUTPUT</div>
+        <div class="viz-wrap" id="audio-viz">
+          <div class="viz-bar" style="--h:20%"></div>
+          <div class="viz-bar" style="--h:40%"></div>
+          <div class="viz-bar" style="--h:60%"></div>
+          <div class="viz-bar" style="--h:80%"></div>
+          <div class="viz-bar" style="--h:100%"></div>
+          <div class="viz-bar" style="--h:80%"></div>
+          <div class="viz-bar" style="--h:60%"></div>
+          <div class="viz-bar" style="--h:40%"></div>
+          <div class="viz-bar" style="--h:20%"></div>
+          <div class="viz-bar" style="--h:30%"></div>
+        </div>
+      </div>
+
+      <div class="panel-divider"></div>
+
+      <!-- Detected Intent -->
+      <div class="hud-block">
+        <div class="hud-label">DETECTED INTENT</div>
+        <div id="intent-badge" class="intent-badge intent-idle">—</div>
+      </div>
+
+      <div class="panel-divider"></div>
+
+      <!-- WS Event Stream -->
+      <div class="hud-block">
+        <div class="hud-label">REALTIME EVENTS</div>
+        <div id="event-stream" class="event-stream">
+          <div class="event-item">
+            <span class="event-time">—</span>
+            <span class="event-type">STANDBY</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel-divider"></div>
+
+      <!-- System uptime  -->
+      <div class="hud-block">
+        <div class="hud-label">SYSTEM UPTIME</div>
+        <div id="uptime-display" class="mono-val uptime">00:00:00</div>
+      </div>
+
+    </aside>
+
+  </div><!-- end .app-layout -->
+
+  <!-- Mobile hamburger -->
+  <button class="hamburger" id="hamburger" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+
+  <script src="/script.js"></script>
+
+  <script src="/jarvis-boot.js" defer></script>
+
+</body>
+</html>
